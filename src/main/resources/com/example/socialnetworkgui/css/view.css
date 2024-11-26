@@ -1,0 +1,43 @@
+.root {
+    -fx-background-color: linear-gradient(
+            from 0% 0% to 100% 100%,
+            #e6eff9,
+            #cdddf4,
+            #b3caed
+    );
+}
+.text{
+    -fx-border-color: #ffffff;
+}
+.tool-bar{
+    -fx-border-color: #b3caed;
+}
+
+.table-view {
+    -fx-background-color: transparent;
+}
+
+/* Transparent cells */
+.table-cell {
+    -fx-background-color: transparent;  /* Transparent background */
+    -fx-text-fill: black;                /* Text color for visibility */
+}
+
+/* Optional: Make selected cells stand out */
+.table-cell:focused {
+    -fx-background-color: rgba(255, 255, 255, 0.2); /* Slight highlight on focus */
+}
+
+/* Optional: Make the header cells transparent too */
+.table-column-header {
+    -fx-background-color: transparent;
+    -fx-text-fill: black;  /* Text color for header */
+}
+
+.button {
+    -fx-text-fill: #677380;
+    -fx-font-family: "Arial Narrow";
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#cde4e4, #a4b5ba);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+}

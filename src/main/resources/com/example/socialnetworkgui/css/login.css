@@ -1,0 +1,24 @@
+.root {
+    -fx-background-image: url(../images/background.jpeg);
+}
+.button {
+    -fx-text-fill: #677380;
+    -fx-font-family: "Arial Narrow";
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#cde4e4, #a4b5ba);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+}
+
+.text-field {
+    -fx-background-color: transparent; /* Makes the background completely transparent */
+    -fx-border-color: #677380;        /* White border to outline the TextField */
+    -fx-border-width: 2px;           /* Defines the thickness of the border */
+    -fx-border-radius: 5;            /* Rounded corners for the TextField */
+    -fx-text-fill: #677380;          /* White text inside the TextField */
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.7); /* Semi-transparent placeholder text */
+    -fx-font-size: 12px;             /* Set the font size for the text */
+    -fx-padding: 5 10;               /* Internal padding for the TextField */
+}
+
+
+

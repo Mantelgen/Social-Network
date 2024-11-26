@@ -1,0 +1,33 @@
+.root{
+    -fx-background-image: url(../images/background.jpeg);
+}
+.text-field {
+    -fx-background-color: transparent; /* Makes the background completely transparent */
+    -fx-border-color: #677380;        /* White border to outline the TextField */
+    -fx-border-width: 2px;           /* Defines the thickness of the border */
+    -fx-border-radius: 5;            /* Rounded corners for the TextField */
+    -fx-text-fill: #677380;          /* White text inside the TextField */
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.7); /* Semi-transparent placeholder text */
+    -fx-font-size: 12px;             /* Set the font size for the text */
+    -fx-padding: 5 10;               /* Internal padding for the TextField */
+}
+.date-picker {
+    -fx-background-color: transparent; /* Makes the background completely transparent */
+    /*-fx-border-color: #ffffff; */        /* White border to outline the DatePicker */ /* Rounded corners for the DatePicker */
+    -fx-text-fill: #677380;          /* White text inside the DatePicker */
+    -fx-font-size: 12px;             /* Font size for the text */ /* Internal padding for the DatePicker */
+}
+.title-bar {
+    -fx-background-color: #2a5298;
+    -fx-padding: 10;
+    -fx-alignment: center-left;
+}
+
+.button {
+    -fx-text-fill: #677380;
+    -fx-font-family: "Arial Narrow";
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#cde4e4, #a4b5ba);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+}
+/* Placeholder text for the DatePicker */

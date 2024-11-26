@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="400.0" prefWidth="353.0" stylesheets="@../css/view.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.socialnetworkgui.Controller.ChatBoxController">
+   <children>
+      <SplitPane dividerPositions="0.7911646586345382" orientation="VERTICAL" prefHeight="400.0" prefWidth="353.0" styleClass="root" stylesheets="@../css/view.css">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" styleClass="root" stylesheets="@../css/view.css">
+               <children>
+                  <ScrollPane fx:id="chatScrollPane" layoutX="6.0" layoutY="39.0" prefHeight="271.0" prefWidth="339.0">
+                    <content>
+                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="259.0" prefWidth="324.0">
+                           <children>
+                              <VBox fx:id="chatZone" prefHeight="259.0" prefWidth="325.0" />
+                           </children>
+                        </AnchorPane>
+                    </content>
+                  </ScrollPane>
+                  <Text fx:id="chat" layoutX="23.0" layoutY="22.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="table-view" text="CHAT" underline="true">
+                     <font>
+                        <Font name="System Bold Italic" size="21.0" />
+                     </font>
+                  </Text>
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" stylesheets="@../css/view.css">
+               <children>
+                  <TextField fx:id="messageField" layoutX="14.0" layoutY="26.0" onAction="#handleSend" prefHeight="26.0" prefWidth="251.0" promptText="Message" stylesheets="@../css/login.css" />
+                  <Button layoutX="272.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleSend" text="Send" />
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
+</AnchorPane>
