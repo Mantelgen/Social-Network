@@ -5,12 +5,15 @@ import com.example.socialnetworkgui.Domain.FriendshipStatus;
 import com.example.socialnetworkgui.Domain.Tuple;
 import com.example.socialnetworkgui.Domain.User;
 import com.example.socialnetworkgui.HelloApplication;
+import com.example.socialnetworkgui.Repository.Database.Paging.FriendshipDTO;
 import com.example.socialnetworkgui.Service.FriendshipService;
 import com.example.socialnetworkgui.Service.MessageService;
 import com.example.socialnetworkgui.Service.UserService;
 import com.example.socialnetworkgui.Utils.Events.FriendshipEntityChangeEvent;
 import com.example.socialnetworkgui.Utils.Events.UserEntityChangeEvent;
 import com.example.socialnetworkgui.Utils.Observer.Observer;
+import com.example.socialnetworkgui.Utils.paging.Page;
+import com.example.socialnetworkgui.Utils.paging.Pageable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -62,9 +65,15 @@ public class UserController implements Observer<FriendshipEntityChangeEvent> {
     TableColumn<Friendship,String> tableColumnDate;
     @FXML
     TableColumn<Friendship,String> tableColumnStatus;
-
+    @FXML
+    private Button buttonNext;
+    @FXML
+    private Button buttonPrevious;
     @FXML
     TextField userFind;
+
+    @FXML
+    private Label labelPage;
 
     @FXML
     ImageView notificationBell;
@@ -74,6 +83,11 @@ public class UserController implements Observer<FriendshipEntityChangeEvent> {
     Stage chatStage;
     long count;
 
+    private int pageSize = 2;
+    private int currentPage = 0;
+    private int totalNumberOfElements = 0;
+
+    private FriendshipDTO filter = new FriendshipDTO();
 
     public void setUtilizatorService(UserService service, FriendshipService friendService,MessageService messageService,User user,Stage primaryStage ) {
         this.service = service;
@@ -135,15 +149,22 @@ public class UserController implements Observer<FriendshipEntityChangeEvent> {
     }
 
     private void initModel() {
-        Iterable<Friendship> messages = friendService.getAllFriendships();
-        List<Friendship> friends = StreamSupport.stream(messages.spliterator(), false)
-                .filter(u->((u.getFirst().equals(user.getId())|| u.getSecond().equals(user.getId()))))
-                .filter(u->(u.getStatus()==FriendshipStatus.ACCEPTED))
-                .collect(Collectors.toList());
-        friends.forEach(System.out::println);
-        model.setAll(friends);
-        count=StreamSupport.stream(messages.spliterator(), false)
-                .filter(u->((u.getFirst().equals(user.getId())|| u.getSecond().equals(user.getId())))).filter(u->u.getStatus().equals(FriendshipStatus.PENDING) && u.getFirst().equals(user.getId())).count();
+        filter.setUser(Optional.ofNullable(user.getId()));
+        filter.setUser2(Optional.ofNullable(user.getId()));
+        filter.setStatus(Optional.ofNullable(FriendshipStatus.ACCEPTED));
+        Pageable pageable = new Pageable(currentPage, pageSize);
+        Page<Friendship> page = friendService.findAllOnPage(pageable,filter);
+        totalNumberOfElements = page.getTotalNumberOfElements();
+        int totalNumberOfPages = totalNumberOfElements / pageSize;
+        if (totalNumberOfElements % pageSize != 0)
+            totalNumberOfPages++;
+        labelPage.setText("Page " + (currentPage + 1) + " of " + totalNumberOfPages);
+        List<Friendship> messages = friendService.findActualFriendships(user,page,FriendshipStatus.ACCEPTED);
+
+        model.setAll(messages);
+        buttonPrevious.setDisable(currentPage == 0);
+        buttonNext.setDisable(currentPage + 1 == totalNumberOfPages);
+        count=friendService.numberOfPending(user);
         if (count!=0){
             Image image = new Image(getClass().getResourceAsStream("../images/notification-bell-alert.png"));
             notificationBell.setImage(image);
@@ -184,6 +205,15 @@ public class UserController implements Observer<FriendshipEntityChangeEvent> {
        if (friend!=null) {
            Friendship fr = friendService.deleteFriendship(friend.getId());
        }
+        int remainingElements = totalNumberOfElements - 1; // One element was deleted
+        int totalPages = (remainingElements + pageSize - 1) / pageSize; // Calculate total pages after deletion
+
+        // If the current page is empty, move to the previous page if not already on the first page
+        if (currentPage + 1 > totalPages && currentPage > 0) {
+            currentPage--;
+        }
+
+        initModel();
     }
 
     public void handleNotificationAlert(MouseEvent event) throws IOException {
@@ -259,5 +289,13 @@ public class UserController implements Observer<FriendshipEntityChangeEvent> {
 
 
     }
+    public void handleNextPage(ActionEvent actionEvent) {
+        currentPage++;
+        initModel();
+    }
 
+    public void handlePreviousPage(ActionEvent actionEvent) {
+        currentPage--;
+        initModel();
+    }
 }

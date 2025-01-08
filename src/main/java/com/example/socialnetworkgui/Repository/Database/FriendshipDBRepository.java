@@ -23,10 +23,10 @@ public class FriendshipDBRepository extends AbstractDBRepository<Tuple<Long,Long
     @Override
     protected Friendship createEntityFromResultSet(ResultSet resultSet) throws SQLException
     {
-        DateTimeFormatter formatter =DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         Long user1Id = resultSet.getLong("user1");
         Long user2ID = resultSet.getLong("user2");
-        LocalDateTime timestamp = LocalDateTime.parse(resultSet.getString("friendsfrom"));
+        LocalDateTime timestamp = resultSet.getTimestamp("friends_from").toLocalDateTime();
         FriendshipStatus status = FriendshipStatus.valueOf(resultSet.getString("status"));
         Friendship friend = new Friendship(new Tuple<>(user1Id,user2ID),timestamp,status);
         return friend;
@@ -35,6 +35,11 @@ public class FriendshipDBRepository extends AbstractDBRepository<Tuple<Long,Long
     @Override
     protected String getTableName() {
         return this.tableName;
+    }
+
+    @Override
+    protected String getTableInsertValuesSQL(Friendship Entity) {
+        return this.tableName+"(user1,user2,friends_from,status)";
     }
 
     @Override
@@ -50,6 +55,6 @@ public class FriendshipDBRepository extends AbstractDBRepository<Tuple<Long,Long
 
     @Override
     protected String getSQLValuesForEntityUpdate(Friendship entity){
-        return "user1="+entity.getFirst()+", user2="+entity.getSecond()+",friendsfrom='"+entity.getDate().toString()+"',status='"+entity.getStatus()+"'";
+        return "user1="+entity.getFirst()+", user2="+entity.getSecond()+",friends_from='"+entity.getDate().toString()+"',status='"+entity.getStatus()+"'";
     }
 }

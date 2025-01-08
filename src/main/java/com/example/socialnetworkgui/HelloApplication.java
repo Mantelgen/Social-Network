@@ -10,6 +10,7 @@ import com.example.socialnetworkgui.Domain.Validators.MessageValidator;
 import com.example.socialnetworkgui.Domain.Validators.UserValidator;
 import com.example.socialnetworkgui.Repository.Database.FriendshipDBRepository;
 import com.example.socialnetworkgui.Repository.Database.MessageDBRepository;
+import com.example.socialnetworkgui.Repository.Database.Paging.FriendshipDBPagingRepository;
 import com.example.socialnetworkgui.Repository.Database.UserDBRepository;
 import com.example.socialnetworkgui.Repository.Repository;
 import com.example.socialnetworkgui.Service.FriendshipService;
@@ -38,7 +39,7 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
 
@@ -49,23 +50,23 @@ public class HelloApplication extends Application {
         Repository<Long, User> utilizatorRepository =
                 new UserDBRepository( new UserValidator(),url,username, pasword);
 
-        Repository<Tuple<Long,Long>,Friendship> friendshipRepository = new FriendshipDBRepository(new FriendshipValidator(),url,username,pasword);
+        FriendshipDBPagingRepository friendshipRepository = new  FriendshipDBPagingRepository(new FriendshipValidator(),url,username,pasword);
         Repository<Long, Message> messageRepository = new MessageDBRepository(new MessageValidator(),url,username,pasword,utilizatorRepository);
         userService =new UserService(utilizatorRepository,friendshipRepository);
         friendshipService = new FriendshipService(utilizatorRepository,friendshipRepository);
         messageService = new MessageService(utilizatorRepository,messageRepository);
-
-        /*userService.addUser(1L,"Mircea", "Lucesc", LocalDate.parse("11/10/2012", formatter), "lucescumircea10@gmail.com", "12345");
-        userService.addUser(2L,"George", "Becali", LocalDate.parse("10/12/2010", formatter), "georgebecali10@yahoo.com", "123456");
-        userService.addUser(3L,"Nicolaie", "Trepan", LocalDate.parse("13/05/2001", formatter), "nicolaietrepan10@gamil.com", "1234567");
-        userService.addUser(4L,"Ion", "Vasile", LocalDate.parse("12/03/2004", formatter), "vasileion10@yahoo.com", "2345678");
-        userService.addUser(5L,"Cristian", "Veres", LocalDate.parse("11/08/2013", formatter), "verescristi10@yahoo.com", "123498");
-        userService.addUser(6L,"Mihaela", "Popescu", LocalDate.parse("10/03/2013", formatter), "popescumihaela10@yahoo.com", "123490");
-        userService.addUser(7L,"Maria", "Tanase", LocalDate.parse("12/01/2011", formatter), "tanasemaria10@gmail.com", "1234234");
-        userService.addUser(8L,"Ionela", "Eremia", LocalDate.parse("10/06/2007", formatter), "eremiaionela10@yahoo.com", "1234678");
-        userService.addUser(9L,"Adela", "Popescu", LocalDate.parse("11/08/2001", formatter), "popescuadela10@gmail.com", "1234345");
-        userService.addUser(10L,"Ion", "Popescu", LocalDate.parse("12/03/2011", formatter), "popescuion10@yahoo.com", "1234");
-        */
+   /*
+        userService.addUser(1L,"Mircea", "Lucesc", LocalDate.parse("2012-11-13", formatter), "lucescumircea10@gmail.com", "12345");
+        userService.addUser(2L,"George", "Becali", LocalDate.parse("2012-09-29", formatter), "georgebecali10@yahoo.com", "123456");
+        userService.addUser(3L,"Nicolaie", "Trepan", LocalDate.parse("2013-10-12", formatter), "nicolaietrepan10@gamil.com", "1234567");
+        userService.addUser(4L,"Ion", "Vasile", LocalDate.parse("2013-12-15", formatter), "vasileion10@yahoo.com", "2345678");
+        userService.addUser(5L,"Cristian", "Veres", LocalDate.parse("2014-03-12", formatter), "verescristi10@yahoo.com", "123498");
+        userService.addUser(6L,"Mihaela", "Popescu", LocalDate.parse("2014-02-22", formatter), "popescumihaela10@yahoo.com", "123490");
+        userService.addUser(7L,"Maria", "Tanase", LocalDate.parse("2009-07-12", formatter), "tanasemaria10@gmail.com", "1234234");
+        userService.addUser(8L,"Ionela", "Eremia", LocalDate.parse("2009-10-30", formatter), "eremiaionela10@yahoo.com", "1234678");
+        userService.addUser(9L,"Adela", "Popescu", LocalDate.parse("2004-10-02", formatter), "popescuadela10@gmail.com", "1234345");
+        userService.addUser(10L,"Ion", "Popescu", LocalDate.parse("2004-01-22", formatter), "popescuion10@yahoo.com", "1234");
+    */
         initView(primaryStage);
         primaryStage.setWidth(500);
         primaryStage.setHeight(340);

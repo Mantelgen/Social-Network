@@ -21,8 +21,8 @@ public class UserDBRepository extends AbstractDBRepository<Long, User> {
     protected User createEntityFromResultSet(ResultSet resultSet) throws SQLException {
         DateTimeFormatter formatter =DateTimeFormatter.ofPattern("yyyy-MM-dd");
         Long id = resultSet.getLong("id");
-        String firstName = resultSet.getString("firstName");
-        String lastName = resultSet.getString("lastName");
+        String firstName = resultSet.getString("first_name");
+        String lastName = resultSet.getString("last_name");
         String email = resultSet.getString("email");
         LocalDate birthDate = LocalDate.parse(resultSet.getString("birthday"),formatter);
         String password = resultSet.getString("password");
@@ -39,13 +39,18 @@ public class UserDBRepository extends AbstractDBRepository<Long, User> {
     }
 
     @Override
+    protected String getTableInsertValuesSQL(User user) {
+        return this.tableName+"(first_name,last_name,birthday,email,password)";
+    }
+
+    @Override
     protected String getSQLIdForEntityId(Long aLong) {
         return "id =" + aLong;
     }
 
     @Override
     protected String getSQLValuesForEntity(User entity) {
-        return "("+ entity.getId()+", '"+ entity.getFirstName()+"', '"+ entity.getLastName()+
+        return "('"+ entity.getFirstName()+"', '"+ entity.getLastName()+
                 "', '"+entity.getBirthDate().toString()+"', '"+entity.getEmail()+"', '"+entity.getPassword()+"')";
     }
 

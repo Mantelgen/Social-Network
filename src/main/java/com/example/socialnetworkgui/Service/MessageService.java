@@ -13,8 +13,11 @@ import com.example.socialnetworkgui.Utils.Observer.Observer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class MessageService implements Observable<MessageEntityChangeEvent> {
     private final Repository<Long, User> userRepo;
@@ -47,6 +50,14 @@ public class MessageService implements Observable<MessageEntityChangeEvent> {
         MessageEntityChangeEvent event = new MessageEntityChangeEvent(ChangeEventType.ADD,msg);
         notifyObservers(event);
         return msg;
+    }
+    public List<Message> getMessagesFromConversation(User from, User to){
+        Iterable<Message> messages = this.getAllMessages();
+
+        return StreamSupport.stream(messages.spliterator(), false).
+                filter(u->(u.getFrom().equals(from) && u.getTo().get(0).equals(to)) || (u.getTo().get(0).equals(from) && u.getFrom().equals(to))).
+                sorted(Comparator.comparing(Message::getDate)).
+                collect(Collectors.toList());
     }
     @Override
     public void addObserver(Observer<MessageEntityChangeEvent> e) {

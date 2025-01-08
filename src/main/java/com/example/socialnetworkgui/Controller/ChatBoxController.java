@@ -74,12 +74,7 @@ public class ChatBoxController implements Observer<MessageEntityChangeEvent> {
     public void initModel(){
 
         chat.setText("Chat: "+ to.getFirstName()+ " " + to.getLastName());
-        Iterable<Message> messages = messageService.getAllMessages();
-
-        List<Message> messageList = StreamSupport.stream(messages.spliterator(), false).
-                                    filter(u->(u.getFrom().equals(from) && u.getTo().get(0).equals(to)) || (u.getTo().get(0).equals(from) && u.getFrom().equals(to))).
-                                    sorted(Comparator.comparing(Message::getDate)).
-                                    collect(Collectors.toList());
+        List<Message> messageList = messageService.getMessagesFromConversation(from,to);
         chatZone.setPadding(new Insets(messageList.size()));
         chatZone.setSpacing(5);
         for(Message m : messageList){

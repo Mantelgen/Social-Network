@@ -26,13 +26,13 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
     @Override
     protected Message createEntityFromResultSet(ResultSet resultSet) throws SQLException {
         DateTimeFormatter formatter =DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime time = LocalDateTime.parse(resultSet.getString("created_at"));
+        LocalDateTime time = resultSet.getTimestamp("created_at").toLocalDateTime();
         Message m = new Message(
                 userDBRepository.findOne(resultSet.getLong("sender_id")).get(),
                 userDBRepository.findOne(resultSet.getLong("receiver_id")).get(),
                 resultSet.getString("message_string"),
                 time,
-                resultSet.getInt("replied_at"));
+                resultSet.getInt("replied"));
         m.setId(resultSet.getLong("id"));
         return m;
     }
@@ -43,6 +43,11 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
     }
 
     @Override
+    protected String getTableInsertValuesSQL(Message Entity) {
+        return this.tableName+"(sender_id,receiver_id,message_string,created_at,replied)";
+    }
+
+    @Override
     protected String getSQLIdForEntityId(Long aLong) {
         return "id =" + aLong;
     }
@@ -50,7 +55,7 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
     @Override
     protected String getSQLValuesForEntity(Message entity) {
         List<User> users = entity.getTo();
-        return "("+ entity.getId()+", "+ entity.getFrom().getId()+", "+users.get(0).getId()+", '"+entity.getMessage()+"', '"+entity.getDate().toString()+"', "+ entity.getReplay()+")";
+        return "("+ entity.getFrom().getId()+", "+users.get(0).getId()+", '"+entity.getMessage()+"', '"+entity.getDate().toString()+"', "+ entity.getReplay()+")";
     }
 
     @Override

@@ -30,6 +30,8 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
 
     protected abstract String getTableName();
 
+    protected abstract String getTableInsertValuesSQL(E Entity);
+
     protected abstract String getSQLIdForEntityId(ID id);
 
     protected abstract String getSQLValuesForEntity(E entity);
@@ -82,7 +84,7 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
             throw new IllegalArgumentException("ENTITY must not be null");
         }
         validator.validate(entity);
-        String query = "INSERT INTO " + getTableName() + " VALUES " + getSQLValuesForEntity(entity);
+        String query = "INSERT INTO " + getTableInsertValuesSQL(entity) + " VALUES " + getSQLValuesForEntity(entity);
         try (Connection connection = DriverManager.getConnection(url, username, password);
              PreparedStatement statement = connection.prepareStatement(query)) {
              statement.executeUpdate();

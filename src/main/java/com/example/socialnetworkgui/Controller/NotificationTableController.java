@@ -3,21 +3,28 @@ package com.example.socialnetworkgui.Controller;
 import com.example.socialnetworkgui.Domain.Friendship;
 import com.example.socialnetworkgui.Domain.FriendshipStatus;
 import com.example.socialnetworkgui.Domain.User;
+import com.example.socialnetworkgui.Repository.Database.Paging.FriendshipDTO;
 import com.example.socialnetworkgui.Service.FriendshipService;
 import com.example.socialnetworkgui.Service.UserService;
 import com.example.socialnetworkgui.Utils.Events.FriendshipEntityChangeEvent;
 import com.example.socialnetworkgui.Utils.Observer.Observer;
+import com.example.socialnetworkgui.Utils.paging.Page;
+import com.example.socialnetworkgui.Utils.paging.Pageable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+
+
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -38,6 +45,16 @@ public class NotificationTableController implements Observer<FriendshipEntityCha
     FriendshipService friendService;
     User user;
     ObservableList<Friendship> modelNotification = FXCollections.observableArrayList();
+    @FXML
+    private Button buttonNext;
+    @FXML
+    private Button buttonPrevious;
+    @FXML
+    private Label labelPage;
+    private FriendshipDTO filter = new FriendshipDTO();
+    private int pageSize = 3;
+    private int currentPage = 0;
+    private int totalNumberOfElements = 0;
 
     public void setUtilizatorService(UserService service, FriendshipService friendService, User user, Stage stage) {
         this.service = service;
@@ -79,13 +96,20 @@ public class NotificationTableController implements Observer<FriendshipEntityCha
     }
 
     private void initModelNotification() {
-        Iterable<Friendship> messages = friendService.getAllFriendships();
-        List<Friendship> friends = StreamSupport.stream(messages.spliterator(), false)
-                .filter(u->(u.getFirst().equals(user.getId())))
-                .filter(u->(u.getStatus()==FriendshipStatus.PENDING))
-                .collect(Collectors.toList());
-        friends.forEach(System.out::println);
-        modelNotification.setAll(friends);
+        filter.setUser(Optional.ofNullable(user.getId()));
+        filter.setStatus(Optional.of(FriendshipStatus.PENDING));
+        Pageable pageable = new Pageable(currentPage, pageSize);
+        Page<Friendship> page = friendService.findAllOnPage(pageable,filter);
+        totalNumberOfElements = page.getTotalNumberOfElements();
+        int totalNumberOfPages = totalNumberOfElements / pageSize;
+        if (totalNumberOfElements % pageSize != 0)
+            totalNumberOfPages++;
+        labelPage.setText("Page " + (currentPage + 1) + " of " + totalNumberOfPages);
+        List<Friendship> messages = friendService.findActualFriendships(user,page,FriendshipStatus.PENDING);
+
+        modelNotification.setAll(messages);
+        buttonPrevious.setDisable(currentPage == 0);
+        buttonNext.setDisable(currentPage + 1 == totalNumberOfPages);
     }
 
     public void handleDeleteUser(ActionEvent actionEvent) {
@@ -93,22 +117,18 @@ public class NotificationTableController implements Observer<FriendshipEntityCha
         if (friend!=null) {
             Friendship fr = friendService.deleteFriendship(friend.getId());
         }
+        int remainingElements = totalNumberOfElements - 1;
+        int totalPages = (remainingElements + pageSize - 1) / pageSize;
+        if (currentPage + 1 > totalPages && currentPage > 0) {
+            currentPage--;
+        }
+
+        initModelNotification();
     }
 
     public void handleAcceptFriendship(ActionEvent actionEvent) {
         Friendship friend=(Friendship) tableViewNotification.getSelectionModel().getSelectedItem();
-        if (friend!=null) {
-            if(friend.getStatus()== FriendshipStatus.PENDING && friend.getFirst().equals(user.getId())) {
-                Friendship fr = friendService.setStatus(friend.getId(),FriendshipStatus.ACCEPTED);
-            }
-            else{
-                Alert message=new Alert(Alert.AlertType.ERROR);
-                //message.initOwner();
-                message.setTitle("Mesaj eroare");
-                message.setContentText("Friendship was already handeled by this user!");
-                message.showAndWait();
-            }
-        }
+        Friendship fr = friendService.setStatus(friend.getId(),FriendshipStatus.ACCEPTED);
     }
 
     @Override
@@ -116,5 +136,14 @@ public class NotificationTableController implements Observer<FriendshipEntityCha
 
         initModelNotification();
 
+    }
+    public void handleNextPage(ActionEvent actionEvent) {
+        currentPage++;
+        initModelNotification();
+    }
+
+    public void handlePreviousPage(ActionEvent actionEvent) {
+        currentPage--;
+        initModelNotification();
     }
 }

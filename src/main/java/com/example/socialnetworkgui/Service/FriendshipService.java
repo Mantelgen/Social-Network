@@ -4,26 +4,31 @@ import com.example.socialnetworkgui.Domain.Friendship;
 import com.example.socialnetworkgui.Domain.FriendshipStatus;
 import com.example.socialnetworkgui.Domain.Tuple;
 import com.example.socialnetworkgui.Domain.User;
+import com.example.socialnetworkgui.Repository.Database.Paging.FriendshipDBPagingRepository;
+import com.example.socialnetworkgui.Repository.Database.Paging.FriendshipDTO;
 import com.example.socialnetworkgui.Repository.Repository;
 import com.example.socialnetworkgui.Utils.Events.ChangeEventType;
 import com.example.socialnetworkgui.Utils.Events.FriendshipEntityChangeEvent;
-import com.example.socialnetworkgui.Utils.Events.UserEntityChangeEvent;
 import com.example.socialnetworkgui.Utils.Observer.Observable;
 import com.example.socialnetworkgui.Utils.Observer.Observer;
+import com.example.socialnetworkgui.Utils.paging.Page;
+import com.example.socialnetworkgui.Utils.paging.Pageable;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class FriendshipService implements Observable<FriendshipEntityChangeEvent> {
 
     private final Repository<Long, User> userRepo;
-    private final Repository<Tuple<Long,Long>, Friendship> friendshipRepo;
+    private final FriendshipDBPagingRepository friendshipRepo;
     private List<Observer<FriendshipEntityChangeEvent>> observers = new ArrayList<>();
 
-    public FriendshipService(Repository<Long, User> userRepo, Repository<Tuple<Long, Long>, Friendship> friendshipRepo) {
+    public FriendshipService(Repository<Long, User> userRepo, FriendshipDBPagingRepository friendshipRepo) {
         this.userRepo = userRepo;
         this.friendshipRepo = friendshipRepo;
     }
@@ -38,9 +43,12 @@ public class FriendshipService implements Observable<FriendshipEntityChangeEvent
         return friendship.orElse(null);
     }
     public Friendship addFriendship(Tuple<Long,Long> friendshipId) {
+            if(friendshipRepo.findOne(friendshipId).isPresent() || friendshipRepo.findOne(new Tuple<>(friendshipId.getRight(), friendshipId.getLeft())).isPresent())
+                return null;
             Optional<User> o1 = userRepo.findOne(friendshipId.getLeft());
             Optional<User> o2 = userRepo.findOne(friendshipId.getRight());
             if(o1.isPresent() && o2.isPresent()) {
+
                 DateTimeFormatter formatter
                         = DateTimeFormatter.ofPattern(
                         "yyyy-MM-dd HH:mm:ss");
@@ -80,5 +88,19 @@ public class FriendshipService implements Observable<FriendshipEntityChangeEvent
     @Override
     public void notifyObservers(FriendshipEntityChangeEvent t) {
         observers.forEach(e -> e.update(t));
+    }
+    public Page<Friendship> findAllOnPage(Pageable pageable, FriendshipDTO filter) {
+        return friendshipRepo.findAllOnPage(pageable,filter);
+    }
+
+    public long numberOfPending(User user) {
+        return StreamSupport.stream(friendshipRepo.findAll().spliterator(), false).
+                filter(fr->fr.getFirst().equals(user.getId()) && fr.getStatus().equals(FriendshipStatus.PENDING))
+                .count();
+    }
+    public List<Friendship> findActualFriendships(User user, Page<Friendship> page, FriendshipStatus status) {
+        return StreamSupport.stream(page.getElementsOnPage().spliterator(), false).
+                filter(fr->fr.getStatus().equals(status))
+                .collect(Collectors.toList());
     }
 }
